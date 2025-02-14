@@ -1,3 +1,14 @@
+// active btn------
+function activeCategoryBtn (id) {
+    const categoryBtns = document.getElementsByClassName('btn-category');
+    
+    for(const categoryBtn of  categoryBtns){
+        categoryBtn.classList.add('btn-outline')
+    }
+    document.getElementById(`category-btn-${id}`).classList.remove('btn-outline');
+}
+
+
 
 const categories = async() =>{
     try{
@@ -13,7 +24,7 @@ const categoryVideos = async() =>{
     try{
         const res = await  fetch('https://openapi.programming-hero.com/api/phero-tube/videos');
         const  data = await res.json();
-        // videosData(data.videos)
+        videosData(data.videos)
 
     }catch(error){
         console.error(error)
@@ -23,6 +34,8 @@ const categoryVideos = async() =>{
 const categoriesLoadDta = async(id) =>{
     const res = await fetch (`https://openapi.programming-hero.com/api/phero-tube/category/${id}`);
     const data = await res.json();
+
+    activeCategoryBtn(id)
     videosData(data.category)
 }
 
@@ -41,26 +54,28 @@ const categoriesData = (data) =>{
         const div = document.createElement('div');
         div.innerHTML = 
         `
-            <button onclick=categoriesLoadDta(${item?.category_id}) class="btn btn-outline btn-info">${item?.category}</button>
+            <button id="category-btn-${item?.category_id}" onclick=categoriesLoadDta(${item?.category_id}) class="btn btn-outline btn-info btn-category">${item?.category}</button>
         `;
         categoriesContain.appendChild(div);
-
     })
 }
 
 // videos js
 const videosData = (videos) =>{
     const videosContain = document.getElementById('videos-contain');
-    if(videos.length === 0){
+    videosContain.innerHTML = "";
+
+    if(videos.length == 0){
         videosContain.classList.remove('grid')
         videosContain.innerHTML = `
         <h3 class="flex justify-center items-center container font-bold text-xl">No More Data.</h3>
-    `;
+        `;
+        return;
     }
     else{
-        videosContain.classList.add('grid')
-        videosContain.innerHTML = "";
+        videosContain.classList.add('grid');
     }
+
     videos.forEach(video =>{
         const newDiv = document.createElement('div');
         newDiv.innerHTML =`
@@ -74,7 +89,8 @@ const videosData = (videos) =>{
                     <p>If a dog chews shoes whose shoes does he choose?</p>
                     <div class ="flex gap-4">
                         <h4 class="font-semibold ">${video?.authors[0].profile_name} </h4>
-                        <i class="fa-solid fa-circle-check text-blue-600 text-xl"></i>
+                        ${video?.authors[0].verified == true ? `<i class="fa-solid fa-circle-check text-blue-600 text-xl"></i>` : 'False'}
+                        
                     </div>
                     <div class="">
                     <h6>View: ${video?.others?.views}</h6>
