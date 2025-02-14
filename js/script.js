@@ -9,6 +9,7 @@ function activeCategoryBtn (id) {
 }
 
 
+//  fetch api data-----------------------------------------------------
 
 const categories = async() =>{
     try{
@@ -20,9 +21,9 @@ const categories = async() =>{
         console.error(error)
     }
 }
-const categoryVideos = async() =>{
+const categoryVideos = async(searchId = "") =>{
     try{
-        const res = await  fetch('https://openapi.programming-hero.com/api/phero-tube/videos');
+        const res = await  fetch(`https://openapi.programming-hero.com/api/phero-tube/videos?title=${searchId}`);
         const  data = await res.json();
         videosData(data.videos)
 
@@ -39,6 +40,24 @@ const categoriesLoadDta = async(id) =>{
     videosData(data.category)
 }
 
+ const videoLoadData =  async(videoId) =>{
+    const res = await fetch(`https://openapi.programming-hero.com/api/phero-tube/video/${videoId}`);
+    const data = await res.json();
+    videoDisplayDataDetaild(data.video)
+ };
+
+ const videoDisplayDataDetaild = (videoDetails) =>{
+    // document.getElementById('showModalData').click();
+    console.log(videoDetails)
+    document.getElementById('customModal').showModal();
+    const videoContainer = document.getElementById('video-container');
+    videoContainer.innerHTML = `
+        <img src="${videoDetails?.thumbnail}" alt="">
+        <h2 class="card-title font-bold">${videoDetails?.title}</h2>
+        <h2 class="card-title font-light">${videoDetails?.description}</h2>
+    `
+ }
+
 const categoriesData = (data) =>{
     const categoriesContain = document.getElementById('categories-contain');
     // methor-1
@@ -54,7 +73,7 @@ const categoriesData = (data) =>{
         const div = document.createElement('div');
         div.innerHTML = 
         `
-            <button id="category-btn-${item?.category_id}" onclick=categoriesLoadDta(${item?.category_id}) class="btn btn-outline btn-info btn-category">${item?.category}</button>
+            <button id="category-btn-${item?.category_id}" onclick="categoriesLoadDta('${item?.category_id}')" class="btn btn-outline btn-info btn-category">${item?.category}</button>
         `;
         categoriesContain.appendChild(div);
     })
@@ -95,12 +114,19 @@ const videosData = (videos) =>{
                     <div class="">
                     <h6>View: ${video?.others?.views}</h6>
                     </div>
+                    <button onclick = 'videoLoadData("${video.video_id}")' class="btn btn-outline btn-info">Details</button>
                 </div>
             </div>
         `;
         videosContain.appendChild(newDiv);
     })
 }
+
+document.getElementById('search-id').addEventListener('keyup', (e)=>{
+    const searchEvent = e.target.value;
+    categoryVideos(searchEvent)
+})
+
 
 categories()
 categoryVideos()
